@@ -13,13 +13,13 @@ import java.util.List;
 @ApplicationScoped
 public class RoutingRepository {
 
-  private static final String GET_ROUTES_SQL = "select routing_config from routing_config where serviceid = ? order by order_num asc";
+  private static final String GET_ROUTES_SQL = "select endpoint from routing_config where serviceid = ? order by order_num asc";
 
   @Inject
   private FluentJdbc jdbc;
 
   public List<String> routesForService(Message message) {
-    Log.info("Getting routes for service " + message.getHeaders());
+    Log.info("Getting routes for service: " + message.getHeader("serviceid"));
     String serviceId = message.getHeader("serviceid", String.class);
     if (serviceId == null) {
       Log.info("Header serviceid not found!");

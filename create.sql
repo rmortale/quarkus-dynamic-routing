@@ -6,7 +6,8 @@ CREATE TABLE IF NOT EXISTS public.routing_config
 (
     id bigserial NOT NULL,
     serviceid character varying(255) COLLATE pg_catalog."default",
-    routing_config character varying(2048) COLLATE pg_catalog."default",
+    endpoint character varying(2048) COLLATE pg_catalog."default",
+    headers character varying(4096) COLLATE pg_catalog."default",
     order_num int,
     CONSTRAINT routing_config_pkey PRIMARY KEY (id)
     )

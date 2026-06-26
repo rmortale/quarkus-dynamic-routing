@@ -5,7 +5,7 @@ import org.apache.camel.builder.endpoint.EndpointRouteBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import static ch.dulce.camel.config.ActiveMqConfig.ACTIVEMQ_FACTORY_NAME;
-import static ch.dulce.camel.config.IbmConfig.IBM_FACTORY_NAME;
+import static ch.dulce.camel.config.IbmConfig.IBM_JMS_COMPONENT_SWIFT;
 import static ch.dulce.camel.routes.ConsumerRoutes.DEFAULT_JMS_CONNECTION_FACTORY;
 
 
@@ -28,7 +28,7 @@ public class ErrorRoutes extends EndpointRouteBuilder {
 
     from(IBM_ERROR_EP)
         .log("Error occurred: ${header.errorDescription}")
-        .to(jms(ibmErrorQueue).connectionFactory(IBM_FACTORY_NAME))
+        .to(jms(IBM_JMS_COMPONENT_SWIFT, ibmErrorQueue))
         .routeId("Error-ibmmq");
 
     from(ARTEMIS_ERROR_EP)

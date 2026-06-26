@@ -1,9 +1,13 @@
 
 
 INSERT INTO public.routing_config
-(serviceid, routing_config, order_num)
-VALUES('service3', 'jms:avt.service1.davt1?connectionFactory=<default>', 0);
+(serviceid, endpoint, headers, order_num)
+VALUES('service3', 'wmqSwift:queue:DEV.QUEUE.2',
+       'CamelJmsDestinationName,queue:///DEV.QUEUE.3?targetClient=1',
+       0);
 
 INSERT INTO public.routing_config
-(serviceid, routing_config, order_num)
-VALUES('service3', 'jms:avt.service1.davt2?connectionFactory=<default>', 1);
+(serviceid, endpoint, headers, order_num)
+VALUES('service4', 'direct:ibmDynamicProducer',
+       'CamelJmsDestinationName,queue:///DEV.QUEUE.2?targetClient=1',
+       1);
