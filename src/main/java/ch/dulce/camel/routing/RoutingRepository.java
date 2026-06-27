@@ -1,13 +1,11 @@
 package ch.dulce.camel.routing;
 
-import io.quarkus.logging.Log;
+import io.quarkus.cache.CacheResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.apache.camel.Message;
 import org.codejargon.fluentjdbc.api.FluentJdbc;
 import org.codejargon.fluentjdbc.api.mapper.Mappers;
 
-import java.util.Collections;
 import java.util.List;
 
 @ApplicationScoped
@@ -18,15 +16,8 @@ public class RoutingRepository {
   @Inject
   private FluentJdbc jdbc;
 
-  public List<String> routesForService(Message message) {
-    Log.info("Getting routes for service: " + message.getHeader("serviceid"));
-    String serviceId = message.getHeader("serviceid", String.class);
-    if (serviceId == null) {
-      Log.info("Header serviceid not found!");
-      return Collections.emptyList();
-    }
-    List<String> result = jdbc.query().select(GET_ROUTES_SQL).params(serviceId).listResult(Mappers.singleString());
-    Log.info(result);
-    return result;
+  @CacheResult(cacheName = "routes-cache")
+  public List<String> routesForService(String serviceid) {
+    return jdbc.query().select(GET_ROUTES_SQL).params(serviceid).listResult(Mappers.singleString());
   }
 }

@@ -17,8 +17,8 @@ public class DynamicRouter extends RouteBuilder {
 
     from(DYNAMIC_ROUTING_EP)
         .routeId("Dynamic-routing")
-        .routingSlip(method(routingRepository, "routesForService")).ignoreInvalidEndpoints();
-
+        .log("Routing service ${header.serviceid}")
+        .routingSlip(method(routingRepository, "routesForService(${header.serviceid})")).ignoreInvalidEndpoints();
   }
 
 }

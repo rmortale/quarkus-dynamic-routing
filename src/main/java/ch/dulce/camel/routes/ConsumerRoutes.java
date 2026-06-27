@@ -12,7 +12,7 @@ import static ch.dulce.camel.routing.DynamicRouter.DYNAMIC_ROUTING_EP;
 @ApplicationScoped
 public class ConsumerRoutes extends EndpointRouteBuilder {
 
-  private static final String CACHE_LEVEL_NAME = "CACHE_CONSUMER";
+  public static final String CACHE_LEVEL_NAME = "CACHE_CONSUMER";
   public static final String DEFAULT_JMS_CONNECTION_FACTORY = "<default>";
 
   @ConfigProperty(name = "app.artemis.routing.inqueue")
@@ -38,11 +38,11 @@ public class ConsumerRoutes extends EndpointRouteBuilder {
         .advanced().lazyCreateTransactionManager(false))
         .routeId("Routing-artemis")
         .choice()
-        .when(simple("${header.serviceid} != null"))
-          .to(DYNAMIC_ROUTING_EP)
+        .when(simple("${isEmpty(${header.serviceid})}"))
+          .setHeader("errorDescription", constant("Required routing header 'serviceid' missing!"))
+          .to(ARTEMIS_ERROR_EP)
         .otherwise()
-          .setHeader("errorDescription", constant("Routing header 'serviceid' missing!"))
-          .to(ARTEMIS_ERROR_EP);
+          .to(DYNAMIC_ROUTING_EP);
 
     from(jms(ibmInQueue)
         .transacted(true)
@@ -51,11 +51,11 @@ public class ConsumerRoutes extends EndpointRouteBuilder {
         .advanced().lazyCreateTransactionManager(false))
         .routeId("Routing-ibmmq")
         .choice()
-        .when(simple("${header.serviceid} != null"))
-          .to(DYNAMIC_ROUTING_EP)
+        .when(simple("${isEmpty(${header.serviceid})}"))
+          .setHeader("errorDescription", constant("Required routing header 'serviceid' missing!"))
+          .to(IBM_ERROR_EP)
         .otherwise()
-          .setHeader("errorDescription", constant("Routing header 'serviceid' missing!"))
-          .to(IBM_ERROR_EP);
+          .to(DYNAMIC_ROUTING_EP);
 
     from(jms(activemqInQueue)
         .transacted(true)
@@ -64,11 +64,11 @@ public class ConsumerRoutes extends EndpointRouteBuilder {
         .advanced().lazyCreateTransactionManager(false))
         .routeId("Routing-activemq")
         .choice()
-        .when(simple("${header.serviceid} != null"))
-          .to(DYNAMIC_ROUTING_EP)
+        .when(simple("${isEmpty(${header.serviceid})}"))
+          .setHeader("errorDescription", constant("Required routing header 'serviceid' missing!"))
+          .to(ACTIVEMQ_ERROR_EP)
         .otherwise()
-          .setHeader("errorDescription", constant("Routing header 'serviceid' missing!"))
-          .to(ACTIVEMQ_ERROR_EP);
+          .to(DYNAMIC_ROUTING_EP);
 
   }
 }
