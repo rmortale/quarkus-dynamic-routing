@@ -12,9 +12,7 @@ import static ch.dulce.camel.routes.ConsumerRoutes.DEFAULT_JMS_CONNECTION_FACTOR
 @ApplicationScoped
 public class ErrorRoutes extends EndpointRouteBuilder {
 
-  public static final String IBM_ERROR_EP = "direct:ibmErrorEp";
-  public static final String ARTEMIS_ERROR_EP = "direct:artemisErrorEp";
-  public static final String ACTIVEMQ_ERROR_EP = "direct:activemqErrorEp";
+  public static final String ERROR_EP = "direct:errorEp";
 
   @ConfigProperty(name = "app.artemis.error.queue")
   private String artemisErrorQueue;
@@ -26,19 +24,15 @@ public class ErrorRoutes extends EndpointRouteBuilder {
   @Override
   public void configure() throws Exception {
 
-    from(IBM_ERROR_EP)
+    from(ERROR_EP)
+        .routeId("Error-route")
         .log("Error occurred: ${header.errorDescription}")
-        .to(jms(IBM_JMS_COMPONENT_SWIFT, ibmErrorQueue))
-        .routeId("Error-ibmmq");
-
-    from(ARTEMIS_ERROR_EP)
-        .log("Error occurred: ${header.errorDescription}")
-        .to(jms(artemisErrorQueue).connectionFactory(DEFAULT_JMS_CONNECTION_FACTORY))
-        .routeId("Error-artemis");
-
-    from(ACTIVEMQ_ERROR_EP)
-        .log("Error occurred: ${header.errorDescription}")
-        .to(jms(activemqErrorQueue).connectionFactory(ACTIVEMQ_FACTORY_NAME))
-        .routeId("Error-activemq");
+        .choice()
+          .when(simple("${fromRouteId} == 'Routing-ibmmq'"))
+            .to(jms(IBM_JMS_COMPONENT_SWIFT, ibmErrorQueue))
+          .when(simple("${fromRouteId} == 'Routing-artemis'"))
+            .to(jms(artemisErrorQueue).connectionFactory(DEFAULT_JMS_CONNECTION_FACTORY))
+          .when(simple("${fromRouteId} == 'Routing-activemq'"))
+            .to(jms(activemqErrorQueue).connectionFactory(ACTIVEMQ_FACTORY_NAME));
   }
 }
