@@ -1,4 +1,4 @@
-package ch.dulce.camel.transformer;
+package ch.dulce.camel.routes.templates;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.camel.builder.RouteBuilder;

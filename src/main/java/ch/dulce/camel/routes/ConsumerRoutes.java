@@ -4,17 +4,16 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.camel.builder.endpoint.EndpointRouteBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import static ch.dulce.camel.config.ActiveMqConfig.ACTIVEMQ_FACTORY_NAME;
+import static ch.dulce.camel.config.ActiveMqConfig.ACTIVEMQ_COMPONENT_NAME;
+import static ch.dulce.camel.config.ArtemisConfig.ARTEMIS_COMPONENT_NAME;
 import static ch.dulce.camel.config.IbmConfig.IBM_JMS_COMPONENT_SWIFT;
-import static ch.dulce.camel.routes.ErrorRoutes.ERROR_EP;
-import static ch.dulce.camel.routing.DynamicRouter.DYNAMIC_ROUTING_EP;
+import static ch.dulce.camel.routes.templates.Templates.*;
 
 @ApplicationScoped
 public class ConsumerRoutes extends EndpointRouteBuilder {
 
   public static final String CACHE_LEVEL_NAME = "CACHE_CONSUMER";
   public static final String DEFAULT_JMS_CONNECTION_FACTORY = "<default>";
-  private static final String SERVICEID_CHECK_EP = "direct:serviceIdCheck";
 
   @ConfigProperty(name = "app.artemis.routing.inqueue")
   private String artemisInQueue;
@@ -32,37 +31,23 @@ public class ConsumerRoutes extends EndpointRouteBuilder {
   @Override
   public void configure() throws Exception {
 
-    from(jms(artemisInQueue)
-        .transacted(true)
-        .cacheLevelName(CACHE_LEVEL_NAME)
-        .maxConcurrentConsumers(artemisMaxConsumers).connectionFactory(DEFAULT_JMS_CONNECTION_FACTORY)
-        .advanced().lazyCreateTransactionManager(false))
-        .routeId("Routing-artemis")
-        .to(SERVICEID_CHECK_EP);
-
-    from(jms(IBM_JMS_COMPONENT_SWIFT, ibmInQueue)
-        .transacted(true)
-        .cacheLevelName(CACHE_LEVEL_NAME)
-        .maxConcurrentConsumers(ibmMaxConsumers)
-        .advanced().lazyCreateTransactionManager(false))
+    templatedRoute(DYNAMIC_ROUTING_TEMPLATE)
         .routeId("Routing-ibmmq")
-        .to(SERVICEID_CHECK_EP);
+        .parameter(INQUEUE, ibmInQueue)
+        .parameter(IN_COMPONENT, IBM_JMS_COMPONENT_SWIFT)
+        .parameter(MAX_CONSUMERS, ibmMaxConsumers);
 
-    from(jms(activemqInQueue)
-        .transacted(true)
-        .cacheLevelName(CACHE_LEVEL_NAME)
-        .maxConcurrentConsumers(activemqMaxConsumers).connectionFactory(ACTIVEMQ_FACTORY_NAME)
-        .advanced().lazyCreateTransactionManager(false))
+    templatedRoute(DYNAMIC_ROUTING_TEMPLATE)
         .routeId("Routing-activemq")
-        .to(SERVICEID_CHECK_EP);
+        .parameter(INQUEUE, activemqInQueue)
+        .parameter(IN_COMPONENT, ACTIVEMQ_COMPONENT_NAME)
+        .parameter(MAX_CONSUMERS, activemqMaxConsumers);
 
-    from(SERVICEID_CHECK_EP)
-        .choice()
-          .when(simple("${isEmpty(${header.serviceid})}"))
-            .setHeader("errorDescription", constant("Required routing header 'serviceid' missing!"))
-            .to(ERROR_EP)
-          .otherwise()
-            .to(DYNAMIC_ROUTING_EP);
+    templatedRoute(DYNAMIC_ROUTING_TEMPLATE)
+        .routeId("Routing-artemis")
+        .parameter(INQUEUE, artemisInQueue)
+        .parameter(IN_COMPONENT, ARTEMIS_COMPONENT_NAME)
+        .parameter(MAX_CONSUMERS, artemisMaxConsumers);
 
   }
 }

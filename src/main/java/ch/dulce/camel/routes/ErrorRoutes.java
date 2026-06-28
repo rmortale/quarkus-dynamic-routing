@@ -4,9 +4,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.apache.camel.builder.endpoint.EndpointRouteBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import static ch.dulce.camel.config.ActiveMqConfig.ACTIVEMQ_FACTORY_NAME;
+import static ch.dulce.camel.config.ActiveMqConfig.ACTIVEMQ_COMPONENT_NAME;
+import static ch.dulce.camel.config.ArtemisConfig.ARTEMIS_COMPONENT_NAME;
 import static ch.dulce.camel.config.IbmConfig.IBM_JMS_COMPONENT_SWIFT;
-import static ch.dulce.camel.routes.ConsumerRoutes.DEFAULT_JMS_CONNECTION_FACTORY;
 
 
 @ApplicationScoped
@@ -31,8 +31,8 @@ public class ErrorRoutes extends EndpointRouteBuilder {
           .when(simple("${fromRouteId} == 'Routing-ibmmq'"))
             .to(jms(IBM_JMS_COMPONENT_SWIFT, ibmErrorQueue))
           .when(simple("${fromRouteId} == 'Routing-artemis'"))
-            .to(jms(artemisErrorQueue).connectionFactory(DEFAULT_JMS_CONNECTION_FACTORY))
+            .to(jms(ARTEMIS_COMPONENT_NAME, artemisErrorQueue))
           .when(simple("${fromRouteId} == 'Routing-activemq'"))
-            .to(jms(activemqErrorQueue).connectionFactory(ACTIVEMQ_FACTORY_NAME));
+            .to(jms(ACTIVEMQ_COMPONENT_NAME, activemqErrorQueue));
   }
 }
