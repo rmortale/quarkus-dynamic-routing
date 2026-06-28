@@ -5,7 +5,7 @@ import org.apache.camel.builder.endpoint.EndpointRouteBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import static ch.dulce.camel.config.ActiveMqConfig.ACTIVEMQ_FACTORY_NAME;
-import static ch.dulce.camel.config.IbmConfig.IBM_FACTORY_NAME;
+import static ch.dulce.camel.config.IbmConfig.IBM_JMS_COMPONENT_SWIFT;
 import static ch.dulce.camel.routes.ErrorRoutes.ERROR_EP;
 import static ch.dulce.camel.routing.DynamicRouter.DYNAMIC_ROUTING_EP;
 
@@ -40,10 +40,10 @@ public class ConsumerRoutes extends EndpointRouteBuilder {
         .routeId("Routing-artemis")
         .to(SERVICEID_CHECK_EP);
 
-    from(jms(ibmInQueue)
+    from(jms(IBM_JMS_COMPONENT_SWIFT, ibmInQueue)
         .transacted(true)
         .cacheLevelName(CACHE_LEVEL_NAME)
-        .maxConcurrentConsumers(ibmMaxConsumers).connectionFactory(IBM_FACTORY_NAME)
+        .maxConcurrentConsumers(ibmMaxConsumers)
         .advanced().lazyCreateTransactionManager(false))
         .routeId("Routing-ibmmq")
         .to(SERVICEID_CHECK_EP);
