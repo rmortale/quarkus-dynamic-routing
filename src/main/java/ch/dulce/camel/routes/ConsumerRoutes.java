@@ -7,7 +7,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import static ch.dulce.camel.config.ActiveMqConfig.ACTIVEMQ_COMPONENT_NAME;
 import static ch.dulce.camel.config.ArtemisConfig.ARTEMIS_COMPONENT_NAME;
 import static ch.dulce.camel.config.IbmConfig.IBM_JMS_COMPONENT_SWIFT;
-import static ch.dulce.camel.routes.templates.Templates.*;
+import static ch.dulce.camel.routes.templates.ConsumerTemplates.*;
 
 @ApplicationScoped
 public class ConsumerRoutes extends EndpointRouteBuilder {

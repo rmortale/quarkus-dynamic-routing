@@ -7,7 +7,7 @@ import static ch.dulce.camel.routes.ErrorRoutes.ERROR_EP;
 import static ch.dulce.camel.routing.DynamicRouter.DYNAMIC_ROUTING_EP;
 
 @ApplicationScoped
-public class Templates extends EndpointRouteBuilder {
+public class ConsumerTemplates extends EndpointRouteBuilder {
 
   public static final String DYNAMIC_ROUTING_TEMPLATE = "dynamicRoutingTemplate";
 
