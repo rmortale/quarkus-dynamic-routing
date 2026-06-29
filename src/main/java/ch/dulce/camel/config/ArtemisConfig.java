@@ -17,9 +17,7 @@ public class ArtemisConfig {
 
   @Identifier(ARTEMIS_COMPONENT_NAME)
   public JmsComponent createJmsComponent() throws JMSException {
-    JmsComponent jmsComponent = new JmsComponent();
-    jmsComponent.setConnectionFactory(defaultConnectionFactory);
-    return jmsComponent;
+    return JmsComponent.jmsComponent(defaultConnectionFactory);
   }
 
 }
